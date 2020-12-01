@@ -1,0 +1,113 @@
+service: cards
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+  awsinfos:
+    region: us-east-1
+    accessid: ${opt:accessid}
+    accessseckey: ${opt:accessseckey}
+  s3_info:
+    s3_bucket_cards_requests: "cards-requests-leogazziro"
+
+#resources:
+#  Resources:
+#    s3bucketcardsrequests:
+#      Type: "AWS::S3::Bucket"
+#      Properties:
+#        BucketName: ${self:custom.s3_info.s3_bucket_cards_requests}
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: dev
+  region: ${self:custom.awsinfos.region}
+
+package:
+  include:
+    - requirements.txt
+
+functions:
+  request_new_card:
+    handler: "main.request_new_card_handler"
+    cloudwatchLog: "/aws/lambda/request_new_card"
+    memorySize: 128
+    timeout: 30
+    tracing: Active
+    events:
+      - http:
+          path: request_new_card
+          method: POST
+          integration: lambda
+    environment:
+      S3_BUCKET: "${self:custom.s3_info.s3_bucket_cards_requests}"
+      S3_AWS_ACCESS_KEY: "${self:custom.awsinfos.accessid}"
+      S3_AWS_SECRET_KEY: "${self:custom.awsinfos.accessseckey}"
+
+  process_card_request:
+    handler: "main.process_card_request_handler"
+    cloudwatchLog: "/aws/lambda/process_card_request_handler"
+    memorySize: 128
+    timeout: 30
+    tracing: Active
+    events:
+      - s3:
+          bucket: ${self:custom.s3_info.s3_bucket_cards_requests}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .json
+    environment:
+      S3_AWS_ACCESS_KEY: "${self:custom.awsinfos.accessid}"
+      S3_AWS_SECRET_KEY: "${self:custom.awsinfos.accessseckey}"
+      S3_BUCKET: "${self:custom.s3_info.s3_bucket_cards_requests}"
+
+  get_new_card_request_response:
+    handler: "main.get_new_card_request_response_handler"
+    cloudwatchLog: "/aws/lambda/get_new_card_request_response_handler"
+    memorySize: 128
+    timeout: 30
+    tracing: Active
+    events:
+      - http:
+          path: get_new_card_request_response/{id}
+          method: GET
+          integration: lambda
+    environment:
+      S3_AWS_ACCESS_KEY: "${self:custom.awsinfos.accessid}"
+      S3_AWS_SECRET_KEY: "${self:custom.awsinfos.accessseckey}"
+      S3_BUCKET: "${self:custom.s3_info.s3_bucket_cards_requests}"
+
+  get_requests_card_list:
+    handler: "main.get_requests_card_list_handler"
+    cloudwatchLog: "/aws/lambda/get_requests_card_list_handler"
+    memorySize: 128
+    timeout: 30
+    tracing: Active
+    events:
+      - http:
+          path: get_requests_card_list
+          method: GET
+          integration: lambda
+    environment:
+      S3_AWS_ACCESS_KEY: "${self:custom.awsinfos.accessid}"
+      S3_AWS_SECRET_KEY: "${self:custom.awsinfos.accessseckey}"
+      S3_BUCKET: "${self:custom.s3_info.s3_bucket_cards_requests}"
+
+  delete_card_request:
+    handler: "main.delete_card_request_handler"
+    cloudwatchLog: "/aws/lambda/delete_card_request_handler"
+    memorySize: 128
+    timeout: 30
+    tracing: Active
+    events:
+      - http:
+          path: delete_card_request/{id}
+          method: DELETE
+          integration: lambda
+    environment:
+      S3_AWS_ACCESS_KEY: "${self:custom.awsinfos.accessid}"
+      S3_AWS_SECRET_KEY: "${self:custom.awsinfos.accessseckey}"
+      S3_BUCKET: "${self:custom.s3_info.s3_bucket_cards_requests}"

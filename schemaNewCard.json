@@ -1,0 +1,28 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "NewCard",
+  "type" : "object",
+  "properties" : {
+        "name": {
+            "type" : "string",
+            "description": "Nome do solicitante"
+        },
+        "phone": {
+            "type" : "string",
+            "description": "Telefone do solicitante"
+        },
+        "cpf": {
+            "type" : "string",
+            "description": "CPF do solicitante"
+        },
+        "age": {
+            "type" : "number",
+            "description": "Idade do solicitante"
+        },
+        "income": {
+            "type" : "number",
+            "description": "Renda do solicitante"
+        }
+        },
+        "required": ["name", "phone", "cpf", "age", "income"]
+}
