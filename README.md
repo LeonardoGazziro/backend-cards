@@ -21,6 +21,7 @@ Deve ser enviado um JSON no seguinte formato:
 Chamada: GET
 Caminho: /dev/get_new_card_request_response/{cpf}
 Objetivo: Retorna o Status de uma requisição enviada
+Obs: enviad o cpf com ponto e traço
 
 ## get_requests_card_list
 Chamada: GET
@@ -31,6 +32,7 @@ Objetivo: Retorna todas as requisições de cartão enviadas
 Chamada: DELETE
 Caminho: /dev/delete_card_request/{cpf}
 Objetivo: Deleta uma requisição feita utilizando o parametro passado na URL
+Obs: enviad o cpf com ponto e traço
 
 
 # Autenticação
